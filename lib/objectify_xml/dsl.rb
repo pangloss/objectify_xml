@@ -88,10 +88,26 @@ module Objectify
       def attribute_type(qualified_name)
         type = @types[qualified_name]
         if type and not type.is_a? Class
-          type = type.to_s.constantize rescue nil
-          type ||= type.to_s.
-            split(/::/).reject { |n| n.blank? }.
-            inject(self) { |p, n| p.const_get(n) }
+          type_name = type.to_s
+          begin
+            type = type_name.constantize
+          rescue
+            # Try to search the current object's namespace explicitly
+            sections = self.name.split(/::/)
+            while sections.length > 1
+              sections.pop
+              begin
+                sections.push(type_name)
+                type = sections.join('::').constantize
+                break
+              rescue
+                sections.pop
+              end
+            end
+          end
+          if type.nil?
+            raise "Unable to instantiate the constant '#{ type_name }'."
+          end
           @types[qualified_name] = type
         end
         type
