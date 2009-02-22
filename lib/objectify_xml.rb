@@ -9,12 +9,15 @@ module Objectify
   class Xml
     VERSION = '0.1.0'
 
+    attr_accessor :parent
+
     def self.inherited(target)
       # The Dsl module is added to every class that inherits from this
       target.extend Dsl
     end
 
-    def initialize(xml)
+    def initialize(xml, parent = nil)
+      @parent = parent
       @attributes = {}
       return if xml.nil?
       if xml.is_a? String

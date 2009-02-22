@@ -58,7 +58,7 @@ module Objectify
       if flatten?(x)
         parse_xml(x.child)
       elsif type = attribute_type(x)
-        set_attribute(x) { type.new(x) }
+        set_attribute(x) { type.new(x, self) }
       else
         set_attribute(x) { xml_text_to_value(x.text) }
       end
