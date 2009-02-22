@@ -1,0 +1,9 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+lib/objectify_xml.rb
+lib/objectify_xml/atom.rb
+lib/objectify_xml/document_parser.rb
+lib/objectify_xml/dsl.rb
+lib/objectify_xml/element_parser.rb
