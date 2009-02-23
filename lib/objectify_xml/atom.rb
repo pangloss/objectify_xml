@@ -1,22 +1,22 @@
 module Objectify
   module Atom
     class Link < ElementParser
-      attr_accessor :rel, :type, :href
+      attributes :rel, :type, :href
     end
 
 
     class Category < ElementParser
-      attr_accessor :scheme, :term
+      attributes :scheme, :term
     end
 
 
     class Content < ElementParser
-      attr_accessor :type, :xml_lang, :xml_base, :src, :inner_html
+      attributes :type, :xml_lang, :xml_base, :src, :inner_html
     end
 
 
     class Generator < ElementParser
-      attr_accessor :version, :uri, :inner_html
+      attributes :version, :uri, :inner_html
     end
 
 
@@ -43,7 +43,7 @@ module Objectify
       has_many :links, Link, 'link'
       has_one :category, Category, 'category'
       has_many :contents, Content, 'content'
-      has_many :authors, :Author, 'author'
+      has_one :author, :Author, 'author'
       has_many :contributors, :Contributor, 'contributor'
     end
 

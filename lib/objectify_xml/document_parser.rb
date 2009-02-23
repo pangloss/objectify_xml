@@ -1,12 +1,5 @@
 module Objectify
   class DocumentParser < Xml
-    # A hash containing the values of the xml document's nodes. The data is
-    # usually better accessed through the getter and setter methods that are
-    # created for all attributes, has_one and has_many associations.
-    def attributes
-      @attributes
-    end
-
     # The entry point to the parser, normally called by initialize after the 
     # initialization is complete.
     def primary_xml_element(xml)

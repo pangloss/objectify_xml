@@ -3,6 +3,9 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 describe Objectify::DocumentParser do
   describe 'primary_xml_element' do
     it 'should call parse_xml'
+    describe 'with multiple nodes before the first element' do
+      it 'should call parse_xml with the first element'
+    end
   end
   describe 'xml helpers' do
     before do

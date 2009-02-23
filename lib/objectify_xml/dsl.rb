@@ -24,6 +24,7 @@ module Objectify
 
       def has_one(name, type, qualified_name)
         set_type(qualified_name, type)
+        attribute name
       end
 
       def has_many(name, type, qualified_name)
