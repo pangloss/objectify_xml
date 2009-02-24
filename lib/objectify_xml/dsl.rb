@@ -100,10 +100,10 @@ module Objectify
       end
 
       def namespace(name = nil, url = nil)
-        @namespaces[name] = url
+        @namespaces[name.to_s] = url
       end
 
-      def find_namespace(name)
+      def find_namespace(name = '')
         @namespaces[name]
       end
 

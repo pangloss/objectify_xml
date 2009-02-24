@@ -12,6 +12,11 @@ describe Objectify::Xml::Dsl do
     attribute 'attr', 'ns:realname'
     attribute 'attrs', nil, true
     attribute 'ns_something'
+    flatten :nest
+    namespace 'ns', 'http://example.com'
+    namespaces :blog
+    default_namespace 'http://place.com'
+    has_one :link, 'Objectify::Atom::Link', 'link'
   end
 
   it 'should init the metadata' do
@@ -104,38 +109,56 @@ describe Objectify::Xml::Dsl do
     end
   end
 
-#   describe 'attribute_type' do
-#     it 'should return an object'
-#     it 'should parse a symbol type definition'
-#     it 'should parse a string type definition'
-#     it 'should parse a type definition in a module'
-#     it 'should find an object in the current object scope'
-#   end
+  describe 'flatten' do
+    it 'should set the metadata' do
+      MyAuthor.metadata[:flatten].should include('nest')
+    end
+  end
 
-#   describe 'flatten?' do
-#     it 'should be true for flatten definitions'
-#     it 'should be nil otherwise'
-#   end
+  describe 'flatten?' do
+    it 'should work' do
+      MyAuthor.flatten?('nest').should be_true
+      MyAuthor.flatten?('attr').should be_false
+    end
+  end
 
-#   describe 'collection?' do
-#     it 'should be true for has_many definitions'
-#     it 'should be nil otherwise'
-#   end
-#   describe 'namespace' do
-#     it 'should return nil if no default namespace url is defined'
-#     it 'should return the default namespace url if defined'
-#     it 'should return the url of a named namespace'
-#   end
+  describe 'namespace, namespaces and default_namespace' do
+    it 'should define the namespaces' do
+      MyAuthor.metadata[:namespaces].keys.should include('ns')
+      MyAuthor.metadata[:namespaces].keys.should include('blog')
+      MyAuthor.metadata[:namespaces].keys.should include('')
+    end
+  end
 
-#   describe 'namespaces' do
-#     it 'should return a hash containing defined named and unnamed namespaces'
-#   end
+  describe 'find_namespace' do
+    it 'should find a namespace' do
+      MyAuthor.find_namespace('blog').should be_nil
+      MyAuthor.find_namespace.should == 'http://place.com'
+      MyAuthor.find_namespace('').should == 'http://place.com'
+      MyAuthor.find_namespace('ns').should == 'http://example.com'
+    end
+  end
 
-#   describe 'attribute' do
-#     it 'should return the method name of the given attribute'
-#     it 'should return the method name of the given attribute in a namespace'
-#     it 'should return nil if the attribute is not defined'
-#     it 'should return nil if the attribute is in the wrong namespace'
-#   end
+  describe 'attribute_type' do
+    it 'should parse a symbol type definition in module scope' do
+      A::Feed.attribute_type('link').should == A::Link
+    end
+    it 'should parse a string type definition' do
+      MyAuthor.attribute_type('link').should == A::Link
+    end
+  end
 
+  describe 'set_type' do
+    it 'should work' do
+      MyAuthor.metadata[:types]['link'].to_s.should == 'Objectify::Atom::Link' 
+    end
+  end
+
+  describe 'collection?' do
+    it 'should work' do
+      MyAuthor.collection?('ns:realname').should be_false
+      MyAuthor.collection?('attr').should be_false
+      MyAuthor.collection?('attrs').should be_true
+    end
+  end
 end
