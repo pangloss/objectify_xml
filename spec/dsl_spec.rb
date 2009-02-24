@@ -9,6 +9,9 @@ describe Objectify::Xml::Dsl do
 
   class MyAuthor < A::Author
     attributes :weight
+    attribute 'attr', 'ns:realname'
+    attribute 'attrs', nil, true
+    attribute 'ns_something'
   end
 
   it 'should init the metadata' do
@@ -31,7 +34,7 @@ describe Objectify::Xml::Dsl do
 
   describe 'has_one' do
     it 'should set the metadata correctly' do
-      A::Feed.metadata[:attributes].should include('generator')
+      A::Feed.metadata[:attributes].should_not include('generator')
       A::Feed.metadata[:qualified_attributes].should include('generator')
       A::Feed.metadata[:collections].should_not include('generator')
       A::Feed.metadata[:types]['generator'].should == A::Generator
@@ -40,7 +43,7 @@ describe Objectify::Xml::Dsl do
 
   describe 'has_many' do
     it 'should set the metadata correctly' do
-      A::Feed.metadata[:attributes].should include('links')
+      A::Feed.metadata[:attributes].should_not include('links')
       A::Feed.metadata[:qualified_attributes].should include('link')
       A::Feed.metadata[:collections].should include('link')
       A::Feed.metadata[:types]['link'].should == :Link
@@ -57,8 +60,8 @@ describe Objectify::Xml::Dsl do
 
   describe 'attribute' do
     it 'should set up an attribute with namespace' do
-      MyAuthor.attribute 'attr', 'ns:realname'
-      MyAuthor.metadata[:attributes].should include('attr')
+      #attribute 'attr', 'ns:realname'
+      MyAuthor.metadata[:attributes].should_not include('attr')
       MyAuthor.metadata[:qualified_attributes]['ns:realname'].should == 'attr'
       MyAuthor.metadata[:collections].should_not include('ns:realname')
       MyAuthor.metadata[:collections].should_not include('attr')
@@ -70,16 +73,34 @@ describe Objectify::Xml::Dsl do
       d.attr.should be_true
     end
     it 'should set up a collection attribute' do
-      MyAuthor.attribute 'attr2', nil, true
-      MyAuthor.metadata[:attributes].should include('attr2')
-      MyAuthor.metadata[:qualified_attributes].keys.should_not include('attr2')
-      MyAuthor.metadata[:qualified_attributes].values.should_not include('attr2')
-      MyAuthor.metadata[:collections].should include('attr2')
+      #attribute 'attr2', nil, true
+      MyAuthor.metadata[:attributes].should include('attrs')
+      MyAuthor.metadata[:qualified_attributes].keys.should_not include('attrs')
+      MyAuthor.metadata[:qualified_attributes].values.should_not include('attrs')
+      MyAuthor.metadata[:collections].should include('attrs')
       MyAuthor.metadata[:types]['attr'].should be_nil
       d = MyAuthor.new('')
-      d.attr2.should == []
-      d.attr2 = [:something]
-      d.attr2.should == [:something]
+      d.attrs.should == []
+      d.attrs = [:something]
+      d.attrs.should == [:something]
+    end
+  end
+
+  describe 'find_attribute' do
+    it 'should find the attribute with namespace' do
+      MyAuthor.find_attribute('ns:realname', 'ns', 'realname').should == 'attr'
+    end
+    it 'should find the attribute' do
+      MyAuthor.find_attribute('attrs', nil, 'attrs').should == 'attrs'
+    end
+    it 'should pluralize and find the attribute' do
+      A::Entry.find_attribute('link', nil, 'link').should == 'links'
+    end
+    it 'should not find attr with a wrong namespace' do
+      MyAuthor.find_attribute('attr', nil, 'attr').should be_nil
+    end
+    it 'should find the attribute with implicit namespaced name' do
+      MyAuthor.find_attribute('ns:something', 'ns', 'something').should == 'ns_something'
     end
   end
 

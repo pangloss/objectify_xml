@@ -36,14 +36,14 @@ module Objectify
 
       def attributes(*names)
         names.each { |n| attribute n }
-        @attributes
+        @attributes + @qualified_attributes.keys
       end
 
       def attribute(name, qualified_name = nil, collection = false)
         name = name.to_s.underscore
         @qualified_attributes[qualified_name] = name if qualified_name
         @collections << (qualified_name || name).to_s if collection
-        @attributes << name
+        @attributes << name unless qualified_name
         module_eval %{
           def #{name}=(value)
             @attributes['#{name}'] = value
