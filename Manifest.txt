@@ -7,3 +7,9 @@ lib/objectify_xml/atom.rb
 lib/objectify_xml/document_parser.rb
 lib/objectify_xml/dsl.rb
 lib/objectify_xml/element_parser.rb
+spec/spec_helper.rb
+spec/document_parser_spec.rb
+spec/dsl_spec.rb
+spec/element_parser_spec.rb
+spec/objectify_xml_spec.rb
+spec/sample/wikipedia.atom
