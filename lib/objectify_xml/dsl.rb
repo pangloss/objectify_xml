@@ -30,7 +30,6 @@ module Objectify
       end
 
       def has_many(name, type, qualified_name)
-        @collections << qualified_name.to_s
         set_type(qualified_name, type)
         attribute name, qualified_name, true
       end
@@ -42,7 +41,8 @@ module Objectify
 
       def attribute(name, qualified_name = nil, collection = false)
         name = name.to_s.underscore
-        @qualified_attributes[qualified_name] = name
+        @qualified_attributes[qualified_name] = name if qualified_name
+        @collections << (qualified_name || name).to_s if collection
         @attributes << name
         module_eval %{
           def #{name}=(value)

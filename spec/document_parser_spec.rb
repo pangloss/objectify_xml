@@ -53,23 +53,6 @@ describe Objectify::DocumentParser do
         D.new.attribute(@isbn).should == :result
       end
     end
-#   describe 'attribute_type' do
-#     it 'should return an object'
-#     it 'should parse a symbol type definition'
-#     it 'should parse a string type definition'
-#     it 'should parse a type definition in a module'
-#     it 'should find an object in the current object scope'
-#   end
-
-#   describe 'flatten?' do
-#     it 'should be true for flatten definitions'
-#     it 'should be nil otherwise'
-#   end
-
-#   describe 'collection?' do
-#     it 'should be true for has_many definitions'
-#     it 'should be nil otherwise'
-#   end
 
     describe 'namespace?' do
       it 'should delegate if the element has a namespace' do
@@ -84,23 +67,6 @@ describe Objectify::DocumentParser do
         d.namespace?(@title).should be_true
       end
     end
-
-#   describe 'namespace' do
-#     it 'should return nil if no default namespace url is defined'
-#     it 'should return the default namespace url if defined'
-#     it 'should return the url of a named namespace'
-#   end
-
-#   describe 'namespaces' do
-#     it 'should return a hash containing defined named and unnamed namespaces'
-#   end
-
-#   describe 'attribute' do
-#     it 'should return the method name of the given attribute'
-#     it 'should return the method name of the given attribute in a namespace'
-#     it 'should return nil if the attribute is not defined'
-#     it 'should return nil if the attribute is in the wrong namespace'
-#   end
 
     describe 'parse_xml' do
       it 'should call read_xml_element on each xml sibling node' do
