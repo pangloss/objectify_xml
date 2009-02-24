@@ -26,6 +26,24 @@ describe Objectify::Xml do
       end
     end
 
+    describe 'with multiple nodes before the first element' do
+      it 'should call parse_xml with the first element' do
+        xml_string = <<-exml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="http://en.wikipedia.org/skins-1.5/common/feed.css?206xx"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"></feed>
+        exml
+        xml = Nokogiri::XML(xml_string).child.next
+        x = Xml.new(xml_string) do |x|
+          def x.primary_xml_element(xml)
+            xml.name.should == 'feed'
+            @parent = :called
+          end
+        end
+        x.parent.should == :called
+      end
+    end
+
     describe 'with ""' do
       it 'should call primary_xml_element with a Nokogiri XML object' do
         Xml.new('') do |x|

@@ -41,29 +41,37 @@ module Objectify
     end
 
     def inspect
-      attrs = attributes.map do |k,v| 
-        if v.is_a? Objectify::Xml
-          "#{ k }:#{ v.class.name }"
-        elsif v.is_a? Array
-          "#{ k }:#{ v.length }"
-        else
-          k.to_s
+      begin
+        attrs = (attributes || {}).map do |k,v| 
+          if v.is_a? Objectify::Xml
+            "#{ k }:#{ v.class.name }"
+          elsif v.is_a? Array
+            "#{ k }:#{ v.length }"
+          else
+            k.to_s
+          end
         end
+        "<#{ self.class.name } #{ attrs.join(', ') }>"
+      rescue => e
+        "<#{ self.class.name } Error inspecting class: #{ e.name } #{ e.message }>"
       end
-      "<#{ self.class.name } #{ attrs.join(', ') }>"
     end
 
     def pretty_print(q)
-      q.object_group(self) do
-        q.breakable
-        q.seplist(attributes, nil, :each_pair) do |k, v|
-          q.text "#{ k.to_s }: "
-          if v.is_a? String and v.length > 200
-            q.text "#{ v[0..80] }...".inspect
-          else
-            q.pp v
+      begin
+        q.object_group(self) do
+          q.breakable
+          q.seplist(attributes, nil, :each_pair) do |k, v|
+            q.text "#{ k.to_s }: "
+            if v.is_a? String and v.length > 200
+              q.text "#{ v[0..80] }...".inspect
+            else
+              q.pp v
+            end
           end
         end
+      rescue => e
+        q.text "<#{ self.class.name } Error inspecting class: #{ e.name } #{ e.message }>"
       end
     end
 

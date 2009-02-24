@@ -1,87 +1,190 @@
 require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe Objectify::DocumentParser do
+  class D < Objectify::DocumentParser
+    def initialize; end
+    public *private_instance_methods.map { |s| s.to_sym }
+  end
+
+  before do
+    @author = Nokogiri::XML('<author><name>Joe</name></author>').child
+  end
+
   describe 'primary_xml_element' do
-    it 'should call parse_xml'
-    describe 'with multiple nodes before the first element' do
-      it 'should call parse_xml with the first element'
+    it 'should call parse_xml' do
+      d = D.new
+      d.expects(:parse_xml).with(@author.child)
+      d.primary_xml_element(@author)
     end
   end
+
   describe 'xml helpers' do
     before do
-      @xml = mock('xml', :name => 'name', :namespace => nil)
+      @title = Nokogiri::XML('<title>Joe</title>').child
+      @isbn = Nokogiri::XML('<entry xmlns:book="http://example.com"><book:isbn>123</book:isbn></entry>').child.child
+      @generator = Nokogiri::XML('<generator type="friendly">Mr. Happy</title>').child
     end
 
     describe 'qualified_name' do
-      it 'should return name with just name'
-      it 'should return namespace:name with name and namespace'
+      it 'should return name with just name' do
+        D.new.qualified_name(@author).should == 'author'
+      end
+
+      it 'should return namespace:name with name and namespace' do
+        D.new.qualified_name(@isbn).should == 'book:isbn'
+      end
     end
 
-    describe 'attribute_type' do
-      it 'should return an object'
-      it 'should parse a symbol type definition'
-      it 'should parse a string type definition'
-      it 'should parse a type definition in a module'
-      it 'should find an object in the current object scope'
+    describe 'delegate methods' do
+      it 'attribute_type' do
+        D.expects(:attribute_type).with('title').returns(:result)
+        D.new.attribute_type(@title).should == :result
+      end
+      it 'flatten?' do
+        D.expects(:flatten?).with('title').returns(:result)
+        D.new.flatten?(@title).should == :result
+      end
+      it 'collection?' do
+        D.expects(:collection?).with('title').returns(:result)
+        D.new.collection?(@title).should == :result
+      end
+      it 'attribute' do
+        D.expects(:find_attribute).with('book:isbn', 'book', 'isbn').returns(:result)
+        D.new.attribute(@isbn).should == :result
+      end
     end
+#   describe 'attribute_type' do
+#     it 'should return an object'
+#     it 'should parse a symbol type definition'
+#     it 'should parse a string type definition'
+#     it 'should parse a type definition in a module'
+#     it 'should find an object in the current object scope'
+#   end
 
-    describe 'flatten?' do
-      it 'should be true for flatten definitions'
-      it 'should be nil otherwise'
-    end
+#   describe 'flatten?' do
+#     it 'should be true for flatten definitions'
+#     it 'should be nil otherwise'
+#   end
 
-    describe 'collection?' do
-      it 'should be true for has_many definitions'
-      it 'should be nil otherwise'
-    end
+#   describe 'collection?' do
+#     it 'should be true for has_many definitions'
+#     it 'should be nil otherwise'
+#   end
 
     describe 'namespace?' do
-      it 'should be true for specified namespaces'
-      it 'should be nil otherwise'
+      it 'should delegate if the element has a namespace' do
+        d = D.new
+        d.class.expects(:namespace?).with('book').returns(:result)
+        d.namespace?(@isbn).should == :result
+      end
+
+      it 'should just return true if no namespace' do
+        d = D.new
+        d.class.expects(:namespace?).never
+        d.namespace?(@title).should be_true
+      end
     end
 
-    describe 'namespace' do
-      it 'should return nil if no default namespace url is defined'
-      it 'should return the default namespace url if defined'
-      it 'should return the url of a named namespace'
-    end
+#   describe 'namespace' do
+#     it 'should return nil if no default namespace url is defined'
+#     it 'should return the default namespace url if defined'
+#     it 'should return the url of a named namespace'
+#   end
 
-    describe 'namespaces' do
-      it 'should return a hash containing defined named and unnamed namespaces'
-    end
+#   describe 'namespaces' do
+#     it 'should return a hash containing defined named and unnamed namespaces'
+#   end
 
-    describe 'attribute' do
-      it 'should return the method name of the given attribute'
-      it 'should return the method name of the given attribute in a namespace'
-      it 'should return nil if the attribute is not defined'
-      it 'should return nil if the attribute is in the wrong namespace'
-    end
+#   describe 'attribute' do
+#     it 'should return the method name of the given attribute'
+#     it 'should return the method name of the given attribute in a namespace'
+#     it 'should return nil if the attribute is not defined'
+#     it 'should return nil if the attribute is in the wrong namespace'
+#   end
 
     describe 'parse_xml' do
-      it 'should call read_xml_element on each xml sibling node'
-      it 'should have no next node when it returns'
+      it 'should call read_xml_element on each xml sibling node' do
+        xml2 = mock('xml2', :next => nil)
+        xml = mock('xml1', :next => xml2)
+        d = D.new
+        d.expects(:read_xml_element).with(xml)
+        d.expects(:read_xml_element).with(xml2)
+        d.parse_xml(xml)
+      end
     end
 
     describe 'read_xml_element' do
-      it 'should skip text elements'
-      it 'should skip elements in the wrong namespace'
-      it 'should call parse_xml on the first child node of a flattened element'
+      class FlattenAuthor < D
+        flatten :author
+        attribute :name
+      end
+
+      it 'should skip text elements' do
+        d = D.new
+        d.expects(:set_attribute).never
+        @title.child.should be_an_instance_of(Nokogiri::XML::Text)
+        d.read_xml_element(@title.child)
+      end
+
+      it 'should skip elements in the wrong namespace' do
+        d = D.new
+        d.expects(:set_attribute).never
+        d.read_xml_element(@isbn)
+      end
+
+      it 'should call parse_xml on the first child node of a flattened element' do
+        e = FlattenAuthor.new
+        e.flatten?(@author).should be_true
+        e.expects(:parse_xml).with(@author.child)
+        e.read_xml_element(@author)
+      end
+
       describe 'with an attribute type' do
-        it 'should call set_attribute'
-        it 'should initialize the new type with the current node'
-        it 'should not initialize the new type with the current node if no yield'
+        class HasAuthor < D
+          has_one 'author', Objectify::Atom::Author, 'author'
+        end
+        it 'should set the attribute' do
+          e = HasAuthor.new
+          e.attribute_type(@author).should == Objectify::Atom::Author
+          e.expects(:author=).with(instance_of(Objectify::Atom::Author))
+          e.read_xml_element(@author)
+        end
       end
+
       describe 'without an attribute type' do
-        it 'should call set_attribute'
-        it 'should call xml_text_to_value on the node text'
-        it 'should not call xml_text_to_value on the node text if no yield'
+        it 'should set the attribute' do
+          e = FlattenAuthor.new
+          e.expects(:xml_text_to_value).with('Joe').returns(43)
+          e.expects(:name=).with(43)
+          e.read_xml_element(@author)
+        end
       end
-    end
+   end
 
     describe 'set_attribute' do
-      it 'should do nothing if the attribute is not found'
-      it 'should yield and append the result to a collection'
-      it 'should yield and set the result if not a collection'
+      it 'should do nothing if the attribute is not found' do
+        d = D.new
+        d.expects(:attribute).with(:xml).returns(nil)
+        d.set_attribute(:xml) do
+          fail "Shouldn't get here"
+        end
+      end
+      it 'should yield and append the result to a collection' do
+        d = D.new
+        d.expects(:attribute).with(:xml).returns('attr_name')
+        d.expects(:collection?).with(:xml).returns(true)
+        array = []
+        d.expects(:attr_name).returns(array)
+        d.set_attribute(:xml) { :value }
+        array.should == [:value]
+      end
+      it 'should yield and set the result if not a collection' do
+        d = D.new
+        d.expects(:attribute).with(:xml).returns('attr_name')
+        d.expects(:collection?).with(:xml).returns(false)
+        d.expects(:attr_name=).with(:value)
+        d.set_attribute(:xml) { :value }
+      end
     end
   end
 end

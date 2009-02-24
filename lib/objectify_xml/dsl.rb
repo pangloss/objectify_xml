@@ -7,30 +7,32 @@ module Objectify
 
       def init
         parent = ancestors[1]
-        unless /Xml|ElementParser|DocumentParser/ =~ parent.name
-          @collections = parent.instance_variable_get('@collections') || []
-          @attributes = parent.instance_variable_get('@attributes') || []
-          @flatten = parent.instance_variable_get('@flatten') || []
-          @namespaces = parent.instance_variable_get('@namespaces') || []
-          @types = parent.instance_variable_get('@types') || {}
+        unless /^Objectify::(Xml|ElementParser|DocumentParser)$/ =~ parent.name
+          @collections = parent.instance_variable_get('@collections').clone || []
+          @attributes = parent.instance_variable_get('@attributes').clone || []
+          @qualified_attributes = parent.instance_variable_get('@qualified_attributes').clone || {}
+          @flatten = parent.instance_variable_get('@flatten').clone || []
+          @namespaces = parent.instance_variable_get('@namespaces').clone || {}
+          @types = parent.instance_variable_get('@types').clone || {}
         else
           @collections = []
           @attributes = []
+          @qualified_attributes = {}
           @flatten = []
-          @namespaces = []
+          @namespaces = {}
           @types = {}
         end
       end
 
       def has_one(name, type, qualified_name)
         set_type(qualified_name, type)
-        attribute name
+        attribute name, qualified_name
       end
 
       def has_many(name, type, qualified_name)
         @collections << qualified_name.to_s
         set_type(qualified_name, type)
-        attribute name, true
+        attribute name, qualified_name, true
       end
 
       def attributes(*names)
@@ -38,8 +40,9 @@ module Objectify
         @attributes
       end
 
-      def attribute(name, collection = false)
+      def attribute(name, qualified_name = nil, collection = false)
         name = name.to_s.underscore
+        @qualified_attributes[qualified_name] = name
         @attributes << name
         module_eval %{
           def #{name}=(value)
@@ -53,6 +56,9 @@ module Objectify
       end
 
       def find_attribute(qualified_name, namespace, name)
+        if qname = @qualified_attributes[qualified_name]
+          return qname
+        end
         names = []
         plural = collection?(qualified_name)
         if plural
@@ -71,7 +77,7 @@ module Objectify
       end
 
       def flatten(qualified_name)
-        @flatten << qualified_name
+        @flatten << qualified_name.to_s
       end
 
       def flatten?(qualified_name)
@@ -79,11 +85,26 @@ module Objectify
       end
 
       def namespace?(namespace)
-        @namespaces.include? namespace
+        @namespaces.keys.include? namespace
       end
 
       def namespaces(*namespaces)
-        @namespaces += namespaces
+        namespaces.each do |ns|
+          namespace ns
+        end
+        @namespaces
+      end
+
+      def default_namespace(url)
+        @namespaces[''] = url
+      end
+
+      def namespace(name = nil, url = nil)
+        @namespaces[name] = url
+      end
+
+      def find_namespace(name)
+        @namespaces[name]
       end
 
       def attribute_type(qualified_name)
@@ -123,7 +144,12 @@ module Objectify
       end
 
       def metadata
-        [@attributes, @collections, @flatten, @namespaces, @types]
+        { :attributes => @attributes, 
+          :qualified_attributes => @qualified_attributes, 
+          :collections => @collections, 
+          :flatten => @flatten, 
+          :namespaces => @namespaces, 
+          :types => @types }
       end
     end
   end

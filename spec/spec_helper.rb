@@ -8,3 +8,6 @@ def sample_feed(name)
   open(File.join(File.dirname(__FILE__), File.join('sample', name)))
 end
 
+Spec::Runner.configure do |config|
+  config.mock_with :mocha
+end
