@@ -1,4 +1,9 @@
+=== 0.2.0 / 2009-02-24
+
+* Initial public release.
+* Full suite of specs.
+
 === 0.1.0 / 2009-02-22
 
-* Initial release.
+* Initial project creation.
 

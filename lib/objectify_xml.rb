@@ -8,7 +8,7 @@ require File.join(File.dirname(__FILE__), 'objectify_xml/element_parser')
 
 module Objectify
   class Xml
-    VERSION = '0.1.0'
+    VERSION = '0.2.0'
 
     # When child nodes are created, they are given the name of the node
     # that created them which is available here.
