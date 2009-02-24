@@ -16,7 +16,7 @@ module Objectify
 
 
     class Generator < ElementParser
-      attributes :version, :uri, :inner_html
+      attributes :version, :uri, :inner_text
     end
 
 
