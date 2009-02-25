@@ -24,19 +24,24 @@ module Objectify
       target.extend Dsl
     end
 
+    def self.first_element(xml)
+      return if xml.nil?
+      if xml.is_a?(String) or xml.is_a?(File)
+        xml = Nokogiri::XML(xml)
+      end
+      # skip the <?xml?> tag
+      xml = xml.child if xml.class == Nokogiri::XML::Document
+      while xml.class == Nokogiri::XML::Node
+        # skips past things like xml-stylesheet declarations.
+        xml = xml.next
+      end
+      xml
+    end
+
     def initialize(xml, parent = nil)
       @parent = parent
       @attributes = {}
-      return if xml.nil?
-      if xml.is_a?(String) or xml.is_a?(File)
-        xml = Nokogiri::XML(xml) 
-        # skip the <?xml?> tag
-        xml = xml.child if xml.class == Nokogiri::XML::Document
-        while xml.class == Nokogiri::XML::Node
-          # skips past things like xml-stylesheet declarations.
-          xml = xml.next
-        end
-      end
+      xml = self.class.first_element(xml)
       primary_xml_element(xml) if xml
     end
 
