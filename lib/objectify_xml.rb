@@ -27,7 +27,7 @@ module Objectify
     def self.first_element(xml)
       return if xml.nil?
       if xml.is_a?(String) or xml.is_a?(File)
-        xml = Nokogiri::XML(xml)
+        xml = Nokogiri::XML.parse(xml)
       end
       # skip the <?xml?> tag
       xml = xml.child if xml.class == Nokogiri::XML::Document
