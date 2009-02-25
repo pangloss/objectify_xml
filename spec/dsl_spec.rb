@@ -51,7 +51,7 @@ describe Objectify::Xml::Dsl do
       A::Feed.metadata[:attributes].should_not include('links')
       A::Feed.metadata[:qualified_attributes].should include('link')
       A::Feed.metadata[:collections].should include('link')
-      A::Feed.metadata[:types]['link'].should == :Link
+      A::Feed.metadata[:types]['link'].to_s.should match(/Link/)
     end
   end
 

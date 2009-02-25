@@ -45,9 +45,9 @@ describe Objectify::Xml do
     end
 
     describe 'with ""' do
-      it 'should call primary_xml_element with a Nokogiri XML object' do
+      it 'should not call primary_xml_element' do
         Xml.new('') do |x|
-          x.expects(:primary_xml_element)
+          x.expects(:primary_xml_element).never
         end
       end
     end
