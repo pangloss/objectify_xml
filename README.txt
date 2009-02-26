@@ -7,7 +7,7 @@
 Provides an easy to use DSL resembling ActiveRecord for defining objects
 representing any XML document, including deeply nested ones. This project was
 extracted from my ruby-picasa gem. You can find ruby-picasa at
-http://github.com/pangloss/ruby-picasa or available as a gem.
+http://github.com/pangloss/ruby_picasa or available as a gem.
 
 The project also has significant (if not complete) Atom support.
 
