@@ -5,15 +5,11 @@
 == DESCRIPTION:
 
 Provides an easy to use DSL resembling ActiveRecord for defining objects
-representing any XML document, including deeply nested ones. This project
-was extracted from my ruby-picasa gem. You can find ruby-picasa at 
+representing any XML document, including deeply nested ones. This project was
+extracted from my ruby-picasa gem. You can find ruby-picasa at
 http://github.com/pangloss/ruby-picasa or available as a gem.
 
-require 'objectify_xml'
-require 'objectify_xml/atom' # optional
-
-Atom support is significant but may be incomplete. Please submit your
-improvements or support for additional formats, preferably via github.
+The project also has significant (if not complete) Atom support.
 
 == FEATURES:
 
@@ -34,6 +30,8 @@ improvements or support for additional formats, preferably via github.
 The following are functioning early definitions for some of the objects used in
 ruby-picasa in their entirety:
 
+require 'objectify_xml'
+require 'objectify_xml/atom' 
 module RubyPicasa
   class PhotoUrl < Objectify::Xml::ElementParser
     attr_accessor :url, :height, :width
@@ -93,8 +91,8 @@ end
 == INSTALL:
 
 * Installable either as a gem or vendored into a project.
-* gem install objectify_xml
-* gem install pangloss-objectify_xml --source http://gems.github.com
+* gem install objectify-xml
+* gem install pangloss-objectify-xml --source http://gems.github.com
 
 == LICENSE:
 
