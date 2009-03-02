@@ -7,8 +7,10 @@ require File.join(File.dirname(__FILE__), 'objectify_xml/document_parser')
 require File.join(File.dirname(__FILE__), 'objectify_xml/element_parser')
 
 module Objectify
+  # Base class inherited by the DocumentParser and ElementParser. Not intended
+  # for independent use.
   class Xml
-    VERSION = '0.2.1'
+    VERSION = '0.2.2'
 
     # When child nodes are created, they are given the name of the node
     # that created them which is available here.
@@ -24,6 +26,10 @@ module Objectify
       target.extend Dsl
     end
 
+    # Returns the first Nokogiri::XML::Element if any in the document.
+    #
+    # The xml attribute may be a string, a File object or a Nokogiri::XML
+    # object.
     def self.first_element(xml)
       return if xml.nil?
       if xml.is_a?(String) or xml.is_a?(File)
@@ -45,6 +51,8 @@ module Objectify
       primary_xml_element(xml) if xml
     end
 
+    # A short but informative indication of data type and which and how many
+    # elements are present.
     def inspect
       begin
         attrs = (attributes || {}).map do |k,v| 
@@ -62,6 +70,10 @@ module Objectify
       end
     end
 
+    # require 'pp'
+    #
+    # A more detailed recursive dump of the data in and associated to the
+    # object.
     def pretty_print(q)
       begin
         q.object_group(self) do
@@ -82,6 +94,7 @@ module Objectify
 
     protected
 
+    # Attempts to recognize and typecast xml element text values.
     def xml_text_to_value(value)
       value = value.strip
       case value

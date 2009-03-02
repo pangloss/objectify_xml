@@ -1,5 +1,10 @@
 module Objectify
   class ElementParser < Xml
+    # Stores the xml element's attribute values, inner_text and inner_html if
+    # they are defined.
+    #
+    # Attributes can be defined either with the attribute dsl method or by
+    # defining a name= method in the object.
     def primary_xml_element(xml)
       xml.attributes.keys.each do |name|
         method = "#{ name }="

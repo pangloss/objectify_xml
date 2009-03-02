@@ -1,3 +1,8 @@
+=== 0.2.2 / 2009-03-02
+
+* Improved type lookup to look in the object's scope before the general scope.
+* Added full documentation
+
 === 0.2.1 / 2009-03-02
 
 * Minor update to support the latest version of Nokogiri (1.2.1)
