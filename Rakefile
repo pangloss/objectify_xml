@@ -21,4 +21,7 @@ Spec::Rake::SpecTask.new(:spec) do |t|
   t.spec_opts = ['--colour', '--format', 'specdoc']
 end
 
+Rake::Task[:default].clear
+task :default => [:spec]
+
 # vim: syntax=Ruby
