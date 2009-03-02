@@ -9,7 +9,35 @@ describe Objectify::Xml do
     public :xml_text_to_value
   end
 
+  describe 'first_element' do
+    it 'should return the first element, skipping processing instructions' do
+      xml_string = <<-exml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="http://en.wikipedia.org/skins-1.5/common/feed.css?206xx"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"></feed>
+      exml
+      Xml.first_element(xml_string).name.should == 'feed'
+    end
+
+    it 'should handle nil xml' do
+      Xml.first_element(nil).should be_nil
+    end
+
+    it 'should handle blank xml' do
+      Xml.first_element('').should be_nil
+    end
+
+    it 'should return the first element of simple xml data' do
+      Xml.first_element('<foo><bar>no</bar></foo>').name.should == 'foo'
+    end
+  end
+
   describe 'initialize' do
+    it 'should call first_element' do
+      Xml.expects(:first_element).with('the xml').returns(nil)
+      Xml.new('the xml')
+    end
+
     describe 'with nil' do
       it 'should handle nil string' do
         Xml.new(nil) do |x|
@@ -26,24 +54,6 @@ describe Objectify::Xml do
       end
     end
 
-    describe 'with multiple nodes before the first element' do
-      it 'should call parse_xml with the first element' do
-        xml_string = <<-exml
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/css" href="http://en.wikipedia.org/skins-1.5/common/feed.css?206xx"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"></feed>
-        exml
-        xml = Nokogiri::XML(xml_string).child.next
-        x = Xml.new(xml_string) do |x|
-          def x.primary_xml_element(xml)
-            xml.name.should == 'feed'
-            @parent = :called
-          end
-        end
-        x.parent.should == :called
-      end
-    end
-
     describe 'with ""' do
       it 'should not call primary_xml_element' do
         Xml.new('') do |x|
@@ -51,6 +61,7 @@ describe Objectify::Xml do
         end
       end
     end
+
     describe 'with valid xml' do
       it 'should call primary_xml_element with a Nokogiri XML object' do
         Xml.new('<foo><bar>no</bar></foo>') do |x|

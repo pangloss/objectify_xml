@@ -8,7 +8,7 @@ require File.join(File.dirname(__FILE__), 'objectify_xml/element_parser')
 
 module Objectify
   class Xml
-    VERSION = '0.2.0'
+    VERSION = '0.2.1'
 
     # When child nodes are created, they are given the name of the node
     # that created them which is available here.
@@ -31,7 +31,7 @@ module Objectify
       end
       # skip the <?xml?> tag
       xml = xml.child if xml.class == Nokogiri::XML::Document
-      while xml.class == Nokogiri::XML::Node
+      while xml and xml.class != Nokogiri::XML::Element
         # skips past things like xml-stylesheet declarations.
         xml = xml.next
       end
