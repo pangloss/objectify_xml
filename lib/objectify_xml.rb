@@ -5,6 +5,7 @@ require 'nokogiri'
 require File.join(File.dirname(__FILE__), 'objectify_xml/dsl')
 require File.join(File.dirname(__FILE__), 'objectify_xml/document_parser')
 require File.join(File.dirname(__FILE__), 'objectify_xml/element_parser')
+require File.join(File.dirname(__FILE__), 'objectify_xml/nokogiri_before_1.3.0_patch') if Nokogiri::VERSION < "1.3"
 
 module Objectify
   # Base class inherited by the DocumentParser and ElementParser. Not intended

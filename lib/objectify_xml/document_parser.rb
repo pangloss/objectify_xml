@@ -13,7 +13,7 @@ module Objectify
     # including namespace if present.
     def qualified_name(x)
       qn = x.name
-      qn = "#{ x.namespace }:#{ x.name }" if x.namespace
+      qn = "#{ x.namespace.prefix }:#{ x.name }" if x.namespace && x.namespace.prefix
       qn
     end
 
@@ -36,8 +36,8 @@ module Objectify
 
     # Returns boolean to indicate if the given element's namespace is supported.
     def namespace?(x)
-      if x.namespace
-        self.class.namespace?(x.namespace)
+      if x.namespace && x.namespace.prefix
+        self.class.namespace?(x.namespace.prefix)
       else
         true
       end
@@ -46,7 +46,8 @@ module Objectify
     # Returns the attribute name representing the given element. If the element
     # is not defined, returns nil.
     def attribute(x)
-      self.class.find_attribute(qualified_name(x), x.namespace, x.name)
+	  prefix = x.namespace.nil? ? nil : x.namespace.prefix
+      self.class.find_attribute(qualified_name(x), prefix, x.name)
     end
 
     # Parses the given xml element and all of its siblings.
