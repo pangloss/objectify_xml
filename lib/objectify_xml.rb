@@ -11,7 +11,7 @@ module Objectify
   # Base class inherited by the DocumentParser and ElementParser. Not intended
   # for independent use.
   class Xml
-    VERSION = '0.2.2'
+    VERSION = '0.2.3'
 
     # When child nodes are created, they are given the name of the node
     # that created them which is available here.
